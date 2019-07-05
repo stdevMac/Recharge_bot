@@ -5,11 +5,12 @@ import (
 	"github.com/yanzay/tbot"
 	"log"
 	"time"
+	"github.com/stdevMac/Mybot/src/parser"
 )
 
 func main() {
-	token := "598068140:AAFqLPtPxSgggUTDFCRmrdZ-T7E2IRY9edY"
 	// Create new telegram bot server using token
+	token := parser.GetToken("token.txt")
 	bot, err := tbot.NewServer(token)
 	if err != nil {
 		log.Fatal(err)
@@ -18,9 +19,6 @@ func main() {
 	// Use whitelist for Auth middleware, allow to interact only with user1 and user2
 	whitelist := []string{"marcosmaceo"}
 	bot.AddMiddleware(tbot.NewAuth(whitelist))
-
-	// Yo handler works without slash, simple text response
-	bot.Handle("yo", "YO!")
 
 	// Handle with HiHandler function
 	bot.HandleFunc("/hi", HiHandler)
@@ -52,3 +50,4 @@ func HiHandler(message *tbot.Message) {
 func EchoHandler(message *tbot.Message) {
 	message.Reply(message.Text())
 }
+
