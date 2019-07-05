@@ -2,33 +2,49 @@ package parser
 
 import (
 	"bufio"
+	"fmt"
 	"github.com/stdevMac/Mybot/src/sendMail"
 	"github.com/yanzay/tbot"
 	"log"
 	"os"
 )
 
+// ResponseParser
 type ResponseParser struct {
-	number string
-	amount int
-	money int
+	Number string
+	Amount string
+	Money string
 }
 
-
-func Parse(message *tbot.Message) []ResponseParser {
+// parse the message from the user and convert to ResponseParser
+func parse(message *tbot.Message) ([]ResponseParser, error) {
 	var response []ResponseParser
 
-	response = append(response, ResponseParser{"53892073",1,20})
+	response = append(response, ResponseParser{"53892073","1","20"})
 
-	return response
-
+	return response, nil
 }
 
-// Readln returns a single line (without the ending \n)
+// GetBodyMessage parse the message and return string with the body of the mail
+func GetBodyMessage(message *tbot.Message) (string, error) {
+	var response string
+
+	responseParsers, err := parse(message)
+	if err != nil {
+		return "", err
+	}
+	for i := 0; i < len(responseParsers); i++ {
+		response += fmt.Sprintf("%s,%s,%s\n", responseParsers[i].Number, responseParsers[i].Amount, responseParsers[i].Money)
+	}
+
+	return response, nil
+}
+
+// readLine returns a single line (without the ending \n)
 // from the input buffered reader.
 // An error is returned iff there is an error with the
 // buffered reader.
-func Readln(r *bufio.Reader) (string, error) {
+func readLine(r *bufio.Reader) (string, error) {
 	var (isPrefix bool = true
 		err error = nil
 		line, ln []byte
@@ -51,12 +67,12 @@ func GetUserPass(fileName string) sendMail.Sender {
 
 	scanner := bufio.NewReader(file)
 
-	s, e := Readln(scanner)
+	s, e := readLine(scanner)
 	if e != nil {
 		log.Fatal(err)
 	}
 	sender.User = s
-	s, e = Readln(scanner)
+	s, e = readLine(scanner)
 	if e != nil {
 		log.Fatal(err)
 	}
@@ -64,6 +80,7 @@ func GetUserPass(fileName string) sendMail.Sender {
 
 	return sender
 }
+
 func GetToken(fileName string) string {
 	file, err := os.Open(fileName)
 	if err != nil {
@@ -73,7 +90,7 @@ func GetToken(fileName string) string {
 
 	scanner := bufio.NewReader(file)
 
-	s, e := Readln(scanner)
+	s, e := readLine(scanner)
 	if e != nil {
 		log.Fatal(err)
 	}

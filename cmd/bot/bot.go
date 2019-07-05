@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
+	"github.com/stdevMac/Mybot/src/parser"
 	"github.com/yanzay/tbot"
 	"log"
 	"time"
-	"github.com/stdevMac/Mybot/src/parser"
 )
 
 func main() {
+
 	// Create new telegram bot server using token
 	token := parser.GetToken("token.txt")
 	bot, err := tbot.NewServer(token)
@@ -37,6 +38,17 @@ func main() {
 }
 
 func RechargeHandler(message *tbot.Message) {
+	sender := parser.GetUserPass("user-pass.txt")
+
+	bodyMessage, err := parser.GetBodyMessage(message)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	sender.SendMail([]string{"marcos.maceo@nauta.cu"}, message.From.UserName,bodyMessage)
+
+	message.Reply("Already made the recharge!")
+	message.Reply(fmt.Sprintf("Subject: \n=> %s  Body: \n=> %s ", message.From.UserName, bodyMessage))
 
 }
 
