@@ -21,8 +21,8 @@ func main() {
 	whitelist := []string{"marcosmaceo"}
 	bot.AddMiddleware(tbot.NewAuth(whitelist))
 
-	// Handle with HiHandler function
-	bot.HandleFunc("/hi", HiHandler)
+	// Handle with StartHandler function
+	bot.HandleFunc("/start", StartHandler)
 
 	// Handle recharge
 	bot.HandleFunc("/re", RechargeHandler)
@@ -52,7 +52,7 @@ func RechargeHandler(message *tbot.Message) {
 
 }
 
-func HiHandler(message *tbot.Message) {
+func StartHandler(message *tbot.Message) {
 	// Handler can reply with several messages
 	message.Replyf("Hello, %s!", message.From)
 	time.Sleep(1 * time.Second)
