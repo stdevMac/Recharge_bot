@@ -2,11 +2,31 @@ package main
 
 import (
 	"fmt"
+	"github.com/gomodule/redigo/redis"
+	"github.com/stdevMac/Mybot/src/dbIntegration"
 	"github.com/stdevMac/Mybot/src/parser"
 	"github.com/yanzay/tbot"
 	"log"
 	"time"
 )
+
+var dbRedis redis.Conn
+
+func init()  {
+
+	pool := dbIntegration.NewPool()
+	// get a connection from the pool (redis.Conn)
+	dbRedis = pool.Get()
+	// use defer to close the connection when the function completes
+	defer dbRedis.Close()
+
+	// call Redis PING command to test connectivity
+	err := dbIntegration.Ping(dbRedis)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+}
 
 func main() {
 
@@ -26,6 +46,9 @@ func main() {
 
 	// Handle recharge
 	bot.HandleFunc("/re", RechargeHandler)
+
+	// Handle Resume
+	bot.HandleFunc("/resume", ResumeHandler)
 
 	// Set default handler if you want to process unmatched input
 	bot.HandleDefault(EchoHandler)
@@ -63,3 +86,11 @@ func EchoHandler(message *tbot.Message) {
 	message.Reply(message.Text())
 }
 
+func ResumeHandler(message *tbot.Message) {
+	resume, err := dbIntegration.GetResume(dbRedis, message.From.UserName)
+	if err != nil {
+		message.Reply("Hubo error obteniendo el resumen del usuario" + message.From.UserName)
+	}
+
+	message.Reply(resume)
+}

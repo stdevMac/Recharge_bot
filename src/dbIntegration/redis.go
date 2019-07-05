@@ -1,11 +1,11 @@
 package dbIntegration
 
-
 import (
 	"encoding/json"
 	"fmt"
 	"github.com/gomodule/redigo/redis"
 	"github.com/stdevMac/Mybot/src/parser"
+	"strconv"
 	"time"
 )
 
@@ -119,4 +119,44 @@ func GetInfoUsers(c redis.Conn, username string) (InfoUser, error) {
 
 	return usr, err
 
+}
+
+func GetResume(c redis.Conn, username string) (string, error) {
+
+	s, err := redis.String(c.Do("GET", username))
+	if err == redis.ErrNil {
+		fmt.Println("Requested user does not have records")
+	} else if err != nil {
+		return "", err
+	}
+
+	usr := InfoUser{}
+	err = json.Unmarshal([]byte(s), &usr)
+
+	fmt.Printf("%+v\n", usr)
+
+	return prettyFormat(usr), nil
+
+}
+func prettyFormat(infoUser InfoUser) string {
+
+	initial := "Usted ha realizado "
+
+	var response string
+	var numberOfRecharges = 0
+
+	for i := 0; i < len(infoUser.Numbers); i++ {
+		tmp, err := strconv.Atoi(infoUser.Amount[i])
+		if err != nil {
+			fmt.Println(
+				fmt.Sprintf("Error converting the amount of recharges for user by the user %s => ",
+					infoUser.Username) + err.Error())
+			continue
+		}
+		numberOfRecharges += tmp
+		response += fmt.Sprintf("Al numero %s, se le realizaron %s recargas con el precio %s, y se realizo el dia %s. \n",
+			infoUser.Numbers[i], infoUser.Amount[i], infoUser.Money[i], infoUser.Dates[i])
+	}
+
+	return initial + strconv.Itoa(numberOfRecharges) + " recargas.\n\n" + response
 }
