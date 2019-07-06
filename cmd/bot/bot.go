@@ -50,6 +50,7 @@ func main() {
 	// Handle Resume
 	bot.HandleMessage("/resume", ResumeHandler)
 
+	bot.HandleMessage("", EchoHandler)
 
 	// Setup Middleware
 	bot.Use(stat)
