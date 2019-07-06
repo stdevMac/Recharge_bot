@@ -11,9 +11,10 @@ import (
 )
 
 var dbRedis redis.Conn
+var bot *tbot.Server
+var client *tbot.Client
 
 func init()  {
-
 	pool := dbIntegration.NewPool()
 	// get a connection from the pool (redis.Conn)
 	dbRedis = pool.Get()
@@ -25,39 +26,32 @@ func init()  {
 	if err != nil {
 		fmt.Println(err)
 	}
-
-}
-
-func main() {
-
 	// Create new telegram bot server using token
 	token := parser.GetToken("token.txt")
-	bot, err := tbot.NewServer(token)
+	bot = tbot.New(token)
+	client = bot.Client()
+}
+
+
+func main() {
+	// Use whitelist for Auth middleware, allow to interact only with user1 and user2
+	//whitelist := []string{"marcosmaceo"}
+
+	// Handle with StartHandler function
+	bot.HandleMessage("/start", StartHandler)
+
+	// Handle recharge
+	bot.HandleMessage("/re", RechargeHandler)
+
+	// Handle Resume
+	bot.HandleMessage("/resume", ResumeHandler)
+
+	// Start listening for messages
+	err := bot.Start()
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	// Use whitelist for Auth middleware, allow to interact only with user1 and user2
-	whitelist := []string{"marcosmaceo"}
-	bot.AddMiddleware(tbot.NewAuth(whitelist))
-
-	// Handle with StartHandler function
-	bot.HandleFunc("/start", StartHandler)
-
-	// Handle recharge
-	bot.HandleFunc("/re", RechargeHandler)
-
-	// Handle Resume
-	bot.HandleFunc("/resume", ResumeHandler)
-
-	// Set default handler if you want to process unmatched input
-	bot.HandleDefault(EchoHandler)
-
-
 	fmt.Println("Server is Running!")
-	// Start listening for messages
-	err = bot.ListenAndServe()
-	log.Fatal(err)
 }
 
 func RechargeHandler(message *tbot.Message) {
@@ -68,29 +62,38 @@ func RechargeHandler(message *tbot.Message) {
 		log.Fatal(err)
 	}
 
-	sender.SendMail([]string{"marcos.maceo@nauta.cu"}, message.From.UserName,bodyMessage)
+	sender.SendMail([]string{"marcos.maceo@nauta.cu"}, message.From.Username,bodyMessage)
 
-	message.Reply("Already made the recharge!")
-	message.Reply(fmt.Sprintf("Subject: \n=> %s  Body: \n=> %s ", message.From.UserName, bodyMessage))
+	client.SendMessage(message.Chat.ID,"Already made the recharge!")
+	client.SendMessage(message.Chat.ID,fmt.Sprintf("Subject: \n=> %s  Body: \n=> %s ", message.From.Username, bodyMessage))
 
 }
 
 func StartHandler(message *tbot.Message) {
 	// Handler can reply with several messages
-	message.Replyf("Hello, %s!", message.From)
+	client.SendMessage(message.Chat.ID,"Hello, %s!")
 	time.Sleep(1 * time.Second)
-	message.Reply("We are ready to recharge some people!!")
+	client.SendMessage(message.Chat.ID,"We are ready to recharge some people!!")
+}
+
+func stat(h tbot.UpdateHandler) tbot.UpdateHandler {
+	return func(u *tbot.Update) {
+		start := time.Now()
+		h(u)
+		log.Printf("Handle time: %v", time.Now().Sub(start))
+	}
 }
 
 func EchoHandler(message *tbot.Message) {
-	message.Reply(message.Text())
+	client.SendMessage(message.Chat.ID, message.Text)
 }
 
 func ResumeHandler(message *tbot.Message) {
-	resume, err := dbIntegration.GetResume(dbRedis, message.From.UserName)
+	resume, err := dbIntegration.GetResume(dbRedis, message.From.Username)
 	if err != nil {
-		message.Reply("Hubo error obteniendo el resumen del usuario" + message.From.UserName)
+		client.SendMessage(message.Chat.ID,"Hubo error obteniendo el resumen del usuario" + message.From.Username)
+		return
 	}
 
-	message.Reply(resume)
+	client.SendMessage(message.Chat.ID,resume)
 }
