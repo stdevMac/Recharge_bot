@@ -64,7 +64,7 @@ func SetRechargeInfo(c redis.Conn, user string, responseParser []parser.Response
 		numbers = append(numbers, resp.Number)
 		dates = append(dates, time.Now().Format(time.RFC850))
 		amount = append(amount, resp.Amount)
-		money = append(amount, resp.Amount)
+		money = append(money, resp.Money)
 	}
 
 	usr := InfoUser{
@@ -90,6 +90,32 @@ func SetRechargeInfo(c redis.Conn, user string, responseParser []parser.Response
 
 	// serialize InfoUser object to JSON
 	jsonUsers, err := json.Marshal(infoUsers)
+	if err != nil {
+		return err
+	}
+
+	// SET object
+	_, err = c.Do("SET", user, jsonUsers)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// SetBasic Update in redis first information
+func SetBasic(c redis.Conn, user string) error {
+
+	basic := InfoUser{
+		Username:  	user,
+		Numbers:    []string{},
+		Dates: 		[]string{},
+		Amount:		[]string{},
+		Money:		[]string{},
+	}
+
+	// serialize InfoUser object to JSON
+	jsonUsers, err := json.Marshal(basic)
 	if err != nil {
 		return err
 	}
@@ -154,7 +180,7 @@ func prettyFormat(infoUser InfoUser) string {
 			continue
 		}
 		numberOfRecharges += tmp
-		response += fmt.Sprintf("Al numero %s, se le realizaron %s recargas con el precio %s, y se realizo el dia %s. \n",
+		response += fmt.Sprintf("# %s -> %s recargas -> %s -> con fecha %s. \n",
 			infoUser.Numbers[i], infoUser.Amount[i], infoUser.Money[i], infoUser.Dates[i])
 	}
 

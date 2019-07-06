@@ -26,20 +26,24 @@ func parse(message *tbot.Message) ([]ResponseParser, error) {
 }
 
 // GetBodyMessage parse the message and return string with the body of the mail
-func GetBodyMessage(message *tbot.Message) (string, error) {
-	var response string
+func GetBodyMessage(message *tbot.Message) ([]ResponseParser, error) {
 
 	responseParsers, err := parse(message)
 	if err != nil {
-		return "", err
+		return []ResponseParser{}, err
 	}
+	return responseParsers, nil
+}
+
+func PrettyPrint(responseParsers []ResponseParser) string {
+	var response string
+
 	for i := 0; i < len(responseParsers); i++ {
 		response += fmt.Sprintf("%s,%s,%s\n", responseParsers[i].Number, responseParsers[i].Amount, responseParsers[i].Money)
 	}
 
-	return response, nil
+	return response
 }
-
 // readLine returns a single line (without the ending \n)
 // from the input buffered reader.
 // An error is returned iff there is an error with the
@@ -61,7 +65,8 @@ func GetUserPass(fileName string) sendMail.Sender {
 
 	file, err := os.Open(fileName)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
+		return sendMail.Sender{}
 	}
 	defer file.Close()
 
@@ -69,12 +74,14 @@ func GetUserPass(fileName string) sendMail.Sender {
 
 	s, e := readLine(scanner)
 	if e != nil {
-		log.Fatal(err)
+		log.Print(err)
+		return sendMail.Sender{}
 	}
 	sender.User = s
 	s, e = readLine(scanner)
 	if e != nil {
-		log.Fatal(err)
+		log.Print(err)
+		return sendMail.Sender{}
 	}
 	sender.Password = s
 
@@ -84,7 +91,8 @@ func GetUserPass(fileName string) sendMail.Sender {
 func GetToken(fileName string) string {
 	file, err := os.Open(fileName)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
+		return ""
 	}
 	defer file.Close()
 
@@ -92,7 +100,8 @@ func GetToken(fileName string) string {
 
 	s, e := readLine(scanner)
 	if e != nil {
-		log.Fatal(err)
+		log.Print(err)
+		return ""
 	}
 
 	return s
