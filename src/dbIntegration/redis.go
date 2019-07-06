@@ -9,6 +9,8 @@ import (
 	"time"
 )
 
+var atackers = "Atackers"
+
 func NewPool() *redis.Pool {
 	return &redis.Pool{
 		// Maximum number of idle connections in the pool.
@@ -129,6 +131,45 @@ func SetBasic(c redis.Conn, user string) error {
 	return nil
 }
 
+type Attackers struct {
+	badUsers []string `json:"badUsers"`
+	numberAttacks []int `json:"numberAttacks"`
+} 
+
+// SetAttacker Update in redis first information
+func SetAttacker(c redis.Conn, user string) error {
+
+	atk, err := GetAttackers(c)
+	if err != nil {
+		fmt.Println(err)
+	}
+	hasRegisterAttack := false
+	for i, badUser := range atk.badUsers {
+		if badUser == user {
+			hasRegisterAttack = true
+			atk.numberAttacks[i] += 1	
+		}
+	}
+	if !hasRegisterAttack {
+		atk.numberAttacks = append(atk.numberAttacks, 1)
+		atk.badUsers = append(atk.badUsers, user)
+	}
+
+	// serialize InfoUser object to JSON
+	jsonUsers, err := json.Marshal(atk)
+	if err != nil {
+		return err
+	}
+
+	// SET object
+	_, err = c.Do("SET", user, jsonUsers)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func GetInfoUsers(c redis.Conn, username string) (InfoUser, error) {
 
 	s, err := redis.String(c.Do("GET", username))
@@ -144,6 +185,24 @@ func GetInfoUsers(c redis.Conn, username string) (InfoUser, error) {
 	fmt.Printf("%+v\n", usr)
 
 	return usr, err
+
+}
+
+func GetAttackers(c redis.Conn) (Attackers, error) {
+
+	s, err := redis.String(c.Do("GET", atackers))
+	if err == redis.ErrNil {
+		fmt.Println("Requested user does not have records")
+	} else if err != nil {
+		return Attackers{}, err
+	}
+
+	atk := Attackers{}
+	err = json.Unmarshal([]byte(s), &atk)
+
+	fmt.Printf("%+v\n", atk)
+
+	return atk, err
 
 }
 

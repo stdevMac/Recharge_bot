@@ -108,7 +108,7 @@ func stat(h tbot.UpdateHandler) tbot.UpdateHandler {
 				log.Printf("Handle time: %v", time.Now().Sub(start))
 			}
 		}
-
+		dbIntegration.SetAttacker(dbRedis, u.Message.From.Username)
 		log.Printf("Handle time: %v", time.Now().Sub(start))
 		log.Printf("User not allowed at %v", time.Now().Sub(start))
 	}

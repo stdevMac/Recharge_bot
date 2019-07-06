@@ -7,6 +7,7 @@ import (
 	"github.com/yanzay/tbot"
 	"log"
 	"os"
+	"strings"
 )
 
 // ResponseParser
@@ -20,9 +21,24 @@ type ResponseParser struct {
 func parse(message *tbot.Message) ([]ResponseParser, error) {
 	var response []ResponseParser
 
-	response = append(response, ResponseParser{"53892073","1","20"})
+	lines := strings.Split(message.Text[len("\recharge "):], "\n")
+
+	for _, line := range lines {
+		line = line[:len(line) - 1]
+		split := strings.Split(line, ",")
+		if err := correctSplit(split) ; err != nil {
+			return []ResponseParser{}, err
+		}
+		response = append(response, ResponseParser{split[0], split[1], split[2]})
+	}
 
 	return response, nil
+}
+func correctSplit(split []string) error {
+	if len(split) != 3 {
+		return fmt.Errorf("Mas de 3 argumentos")
+	}
+	return nil
 }
 
 // GetBodyMessage parse the message and return string with the body of the mail
