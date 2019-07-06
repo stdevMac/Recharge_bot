@@ -7,30 +7,22 @@ import (
 	"github.com/stdevMac/Mybot/src/parser"
 	"github.com/yanzay/tbot"
 	"log"
-	"os"
 	"time"
 )
 
 var dbRedis redis.Conn
 var bot *tbot.Server
 var client *tbot.Client
+var whitelist []string
 
 func init()  {
-
-	var err error
-	// Of course, this name isn't unique,
-	// I usually use time.Now().Unix() or something
-	// to get unique log names.
-	logFile,err := os.Create("logfile.txt")
-	if err != nil {
-		// Open a different logfile or something
-	}
-	log.SetOutput(logFile)
 
 	// Create new telegram bot server using token
 	token := parser.GetToken("token.txt")
 	bot = tbot.New(token)
 	client = bot.Client()
+
+	whitelist = []string{"marcosmaceo"}
 }
 
 
@@ -49,9 +41,6 @@ func main() {
 
 	dbIntegration.SetBasic(dbRedis, "marcosmaceo")
 
-	// Use whitelist for Auth middleware, allow to interact only with user1 and user2
-	//whitelist := []string{"marcosmaceo"}
-
 	// Handle with StartHandler function
 	bot.HandleMessage("/start", StartHandler)
 
@@ -60,6 +49,10 @@ func main() {
 
 	// Handle Resume
 	bot.HandleMessage("/resume", ResumeHandler)
+
+
+	// Setup Middleware
+	bot.Use(stat)
 
 	// Start listening for messages
 	fmt.Println("Server is Running!")
@@ -108,8 +101,15 @@ func StartHandler(message *tbot.Message) {
 func stat(h tbot.UpdateHandler) tbot.UpdateHandler {
 	return func(u *tbot.Update) {
 		start := time.Now()
-		h(u)
+		for _, word := range whitelist {
+			if word == u.Message.From.Username {
+				h(u)
+				log.Printf("Handle time: %v", time.Now().Sub(start))
+			}
+		}
+
 		log.Printf("Handle time: %v", time.Now().Sub(start))
+		log.Printf("User not allowed at %v", time.Now().Sub(start))
 	}
 }
 
