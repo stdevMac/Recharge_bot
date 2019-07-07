@@ -14,6 +14,7 @@ var dbRedis redis.Conn
 var bot *tbot.Server
 var client *tbot.Client
 var whitelist []string
+var superWhitelist []string
 
 func init()  {
 
@@ -23,6 +24,7 @@ func init()  {
 	client = bot.Client()
 
 	whitelist = []string{"marcosmaceo"}
+	superWhitelist = []string{"marcosmaceo"}
 }
 
 
@@ -106,6 +108,7 @@ func stat(h tbot.UpdateHandler) tbot.UpdateHandler {
 			if word == u.Message.From.Username {
 				h(u)
 				log.Printf("Handle time: %v", time.Now().Sub(start))
+				return
 			}
 		}
 		dbIntegration.SetAttacker(dbRedis, u.Message.From.Username)

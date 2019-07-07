@@ -142,6 +142,7 @@ func SetAttacker(c redis.Conn, user string) error {
 	atk, err := GetAttackers(c)
 	if err != nil {
 		fmt.Println(err)
+		return err
 	}
 	hasRegisterAttack := false
 	for i, badUser := range atk.badUsers {
@@ -162,7 +163,7 @@ func SetAttacker(c redis.Conn, user string) error {
 	}
 
 	// SET object
-	_, err = c.Do("SET", user, jsonUsers)
+	_, err = c.Do("SET", atackers, jsonUsers)
 	if err != nil {
 		return err
 	}
