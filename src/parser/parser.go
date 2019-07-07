@@ -104,7 +104,7 @@ func GetUserPass(fileName string) sendMail.Sender {
 	return sender
 }
 
-func GetToken(fileName string) string {
+func GetFileFirstLine(fileName string) string {
 	file, err := os.Open(fileName)
 	if err != nil {
 		log.Print(err)

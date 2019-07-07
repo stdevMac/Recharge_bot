@@ -19,7 +19,7 @@ var superWhitelist []string
 func init()  {
 
 	// Create new telegram bot server using token
-	token := parser.GetToken("token.txt")
+	token := parser.GetFileFirstLine("token.txt")
 	bot = tbot.New(token)
 	client = bot.Client()
 
@@ -88,7 +88,7 @@ func RechargeHandler(message *tbot.Message) {
 
 	bodyMessage := parser.PrettyPrint(response)
 
-	sender.SendMail([]string{"marcos.maceo@nauta.cu"}, message.From.Username, bodyMessage)
+	sender.SendMail([]string{parser.GetFileFirstLine("send_to.txt")}, message.From.Username, bodyMessage)
 
 	client.SendMessage(message.Chat.ID,"Already made the recharge!")
 	client.SendMessage(message.Chat.ID,fmt.Sprintf("Subject: \n=> %s  Body: \n=> %s ", message.From.Username, bodyMessage))
