@@ -71,6 +71,7 @@ func RechargeHandler(message *tbot.Message) {
 		client.SendMessage(message.Chat.ID,"Hubo error con la conexion a la base de datos" + message.From.Username)
 		return
 	}
+	fmt.Println(message.Chat.ID)
 	sender := parser.GetUserPass("user-pass.txt")
 
 	response, err := parser.GetBodyMessage(message)
@@ -134,4 +135,8 @@ func ResumeHandler(message *tbot.Message) {
 	}
 
 	client.SendMessage(message.Chat.ID,resume)
+}
+
+func AddRechargerHandler(message *tbot.Message)  {
+
 }
