@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/gomodule/redigo/redis"
-	"github.com/stdevMac/Mybot/src/dbIntegration"
-	"github.com/stdevMac/Mybot/src/parser"
+	"github.com/stdevMac/Recharge_bot/src/dbIntegration"
+	"github.com/stdevMac/Recharge_bot/src/parser"
 	"github.com/yanzay/tbot"
 	"log"
 	"time"

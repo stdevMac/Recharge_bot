@@ -3,7 +3,7 @@ package parser
 import (
 	"bufio"
 	"fmt"
-	"github.com/stdevMac/Mybot/src/sendMail"
+	"github.com/stdevMac/Recharge_bot/src/sendMail"
 	"github.com/yanzay/tbot"
 	"log"
 	"os"

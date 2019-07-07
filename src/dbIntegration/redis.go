@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gomodule/redigo/redis"
-	"github.com/stdevMac/Mybot/src/parser"
+	"github.com/stdevMac/Recharge_bot/src/parser"
 	"strconv"
 	"time"
 )
