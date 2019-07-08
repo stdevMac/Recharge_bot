@@ -2,17 +2,13 @@ version: '3'
 
 services:
   app:
-    image: golang:1.10-alpine3.9
+    image: golang:1.12.6-alpine3.10
     command: go run ./cmd/bot/bot.go
     volumes:
       - $GOPATH/src/:/go/src/
-    working_dir: /go/src/github.com/stdevMac/Mybot
-    networks:
-    - redis-net
+    working_dir: /go/src/github.com/stdevMac/Recharge_bot
     depends_on:
       - redis
-    links:
-      - "redis:redis"
 
   redis:
     image: redis
@@ -20,15 +16,3 @@ services:
     expose:
     - 6379/tcp
     restart: always
-    networks:
-    - redis-net
-    volumes:
-      - redis_db:/data
-
-
-networks:
-  redis-net:
-    driver: bridge
-
-volumes:
-  redis_db:
