@@ -4,6 +4,7 @@ services:
   app:
     image: golang:1.12.6-alpine3.10
     command: go run ./cmd/bot/bot.go
+    container_name: app    
     volumes:
       - $GOPATH/src/:/go/src/
     working_dir: /go/src/github.com/stdevMac/Recharge_bot
@@ -12,7 +13,7 @@ services:
 
   redis:
     image: redis
-    container_name: redis_new
+    container_name: redis
     expose:
     - 6379/tcp
     restart: always
