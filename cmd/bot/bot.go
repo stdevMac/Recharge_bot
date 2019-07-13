@@ -104,7 +104,7 @@ func StartHandler(message *tbot.Message) {
 	// Handler can reply with several messages
 	client.SendMessage(message.Chat.ID,"Hello, %s!")
 	time.Sleep(1 * time.Second)
-	client.SendMessage(message.Chat.ID,"We are ready to recharge some people!!")
+	client.SendMessage(message.Chat.ID,"Marcos Maceo, [13.07.19 15:16]\nMediante este bot se pueden realizar recargas....Unicamente si te encuentras entre los usuarios que pueden.....El proceder es el siguiente:\n	Para recargar:\n`/recharge #1, #2, #3`\nDonde son lo siguiente:\n#1 -> Numero a recargar\n#2 -> Cantidad de recargas a dicho numero\n#3 -> Cantidad de dinero a transferir\n\nAdemas pueden ser multiples:\n`/recharge #1, #2, #3\n#4, #5, #6\n#7, #8, #9\n#10, #11, #12`\n...\nDonde #4, #7 y #10 son los numeros a recargar, #5, #8 y #11 son la cantidad de recargas a dichos numeros y #6, #9 y #12 son las cantidades con las que se recargaran\n\nSi se quiere ver el resumen de recargas que ha realizado, solo poner el siguiente comando\n`/resume`\n\nPara cualquier duda escribir a @marcosmaceo. Gracias")
 }
 
 func stat(h tbot.UpdateHandler) tbot.UpdateHandler {
