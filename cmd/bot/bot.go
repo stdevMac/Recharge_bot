@@ -41,7 +41,7 @@ func main() {
 		fmt.Println(err)
 	}
 
-	dbIntegration.SetBasic(dbRedis, "marcosmaceo")
+	//dbIntegration.SetBasic(dbRedis, "marcosmaceo")
 
 	// Handle with StartHandler function
 	bot.HandleMessage("/start", StartHandler)
@@ -88,11 +88,16 @@ func RechargeHandler(message *tbot.Message) {
 
 	bodyMessage := parser.PrettyPrint(response)
 
-	sender.SendMail([]string{parser.GetFileFirstLine("send_to.txt")}, message.From.Username, bodyMessage)
+	sendTo := []string{parser.GetFileFirstLine("send_to.txt")}
 
-	client.SendMessage(message.Chat.ID,"Already made the recharge!")
+	bodyToSend := sender.WritePlainEmail(sendTo, message.From.Username, bodyMessage)
+	sender.SendMail(sendTo, message.From.Username, bodyToSend)
+
+	client.SendMessage(message.Chat.ID,fmt.Sprintf("El usuario \"%s\" realizo el siguiente pedido: \n %s", message.Chat.Username, message.Text))
+
+	client.SendMessage(message.Chat.ID,"Su recarga esta siendo procesada...")
 	client.SendMessage(message.Chat.ID,fmt.Sprintf("Subject: \n=> %s  Body: \n=> %s ", message.From.Username, bodyMessage))
-
+	client.SendMessage("677517973", "")
 }
 
 func StartHandler(message *tbot.Message) {

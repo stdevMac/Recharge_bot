@@ -21,10 +21,10 @@ type ResponseParser struct {
 func parse(message *tbot.Message) ([]ResponseParser, error) {
 	var response []ResponseParser
 
-	lines := strings.Split(message.Text[len("\recharge "):], "\n")
+	lines := strings.Split(message.Text[len("\recharge "):],"\n")
 
 	for _, line := range lines {
-		line = line[:len(line) - 1]
+		//line = line[:len(line) - 1]
 		split := strings.Split(line, ",")
 		if err := correctSplit(split) ; err != nil {
 			return []ResponseParser{}, err

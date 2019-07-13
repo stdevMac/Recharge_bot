@@ -96,6 +96,8 @@ func SetRechargeInfo(c redis.Conn, user string, responseParser []parser.Response
 		return err
 	}
 
+	fmt.Printf("%+v\n", infoUsers)
+
 	// SET object
 	_, err = c.Do("SET", user, jsonUsers)
 	if err != nil {
@@ -182,8 +184,6 @@ func GetInfoUsers(c redis.Conn, username string) (InfoUser, error) {
 
 	usr := InfoUser{}
 	err = json.Unmarshal([]byte(s), &usr)
-
-	fmt.Printf("%+v\n", usr)
 
 	return usr, err
 
