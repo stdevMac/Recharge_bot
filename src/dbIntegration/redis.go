@@ -82,6 +82,7 @@ func SetRechargeInfo(c redis.Conn, user string, responseParser []parser.Response
 	if err == redis.ErrNil {
 		infoUsers.Username = user
 	} else if err != nil {
+		fmt.Println("Jone!!")
 		return err
 	}
 
@@ -178,10 +179,10 @@ func GetInfoUsers(c redis.Conn, username string) (InfoUser, error) {
 	s, err := redis.String(c.Do("GET", username))
 	if err == redis.ErrNil {
 		fmt.Println("Requested user does not have records")
+		return InfoUser{},err
 	} else if err != nil {
 		return InfoUser{}, err
 	}
-
 	usr := InfoUser{}
 	err = json.Unmarshal([]byte(s), &usr)
 
