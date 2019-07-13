@@ -19,7 +19,7 @@ services:
     - 6379/tcp
     restart: always
     volumes:
-      - redis_db:/data
+      - redis_db_bot:/data
 
 volumes:
   redis_db_bot:
