@@ -19,4 +19,8 @@ services:
     - 6379/tcp
     restart: always
     volumes:
-      - ~/dbInfo:/data
+      - redis_db:/data
+
+volumes:
+  redis_db_bot:
+    external: true
