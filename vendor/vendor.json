@@ -1,0 +1,19 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "29SMun24tC5a7pMCmb9Ay8RP1ic=",
+			"path": "github.com/gomodule/redigo/redis",
+			"revision": "39e2c31b7ca38b521ceb836620a269e62c895dc9",
+			"revisionTime": "2019-03-22T06:41:13Z"
+		},
+		{
+			"checksumSHA1": "LtO5bXcsRicsL4IsvYh5CYAqrlw=",
+			"path": "github.com/yanzay/tbot",
+			"revision": "cae1c4a549aa7a705fdc0020a0b49a8febf00bef",
+			"revisionTime": "2019-06-15T08:25:19Z"
+		}
+	],
+	"rootPath": "github.com/stdevMac/Recharge_bot"
+}
