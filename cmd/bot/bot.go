@@ -16,7 +16,7 @@ var client *tbot.Client
 var whitelist []string
 var superWhitelist []string
 
-func init()  {
+func init() {
 
 	// Create new telegram bot server using token
 	token := parser.GetFileFirstLine("token.txt")
@@ -26,7 +26,6 @@ func init()  {
 	whitelist = []string{"marcosmaceo"}
 	superWhitelist = []string{"marcosmaceo"}
 }
-
 
 func main() {
 	pool := dbIntegration.NewPool()
@@ -68,7 +67,7 @@ func main() {
 func RechargeHandler(message *tbot.Message) {
 	err := dbIntegration.Ping(dbRedis)
 	if err != nil {
-		client.SendMessage(message.Chat.ID,"Hubo error con la conexion a la base de datos" + message.From.Username)
+		client.SendMessage(message.Chat.ID, "Hubo error con la conexion a la base de datos"+message.From.Username)
 		return
 	}
 	fmt.Println(message.Chat.ID)
@@ -93,18 +92,19 @@ func RechargeHandler(message *tbot.Message) {
 	bodyToSend := sender.WritePlainEmail(sendTo, message.From.Username, bodyMessage)
 	sender.SendMail(sendTo, message.From.Username, bodyToSend)
 
-	client.SendMessage(message.Chat.ID,fmt.Sprintf("El usuario \"%s\" realizo el siguiente pedido: \n %s", message.Chat.Username, message.Text))
+	client.SendMessage(message.Chat.ID, fmt.Sprintf("El usuario \"%s\" realizo el siguiente pedido: \n %s", message.Chat.Username, message.Text))
 
-	client.SendMessage(message.Chat.ID,"Su recarga esta siendo procesada...")
-	client.SendMessage(message.Chat.ID,fmt.Sprintf("Subject: \n=> %s  Body: \n=> %s ", message.From.Username, bodyMessage))
+	client.SendMessage(message.Chat.ID, "Su recarga esta siendo procesada...")
+	client.SendMessage(message.Chat.ID, fmt.Sprintf("Subject: \n=> %s  Body: \n=> %s ", message.From.Username, bodyMessage))
 	client.SendMessage("677517973", "")
 }
 
 func StartHandler(message *tbot.Message) {
 	// Handler can reply with several messages
-	client.SendMessage(message.Chat.ID,"Hello, %s!")
+	client.SendMessage(message.Chat.ID, fmt.Sprintf("Hola, %s %s!", message.Chat.FirstName, message.Chat.LastName))
 	time.Sleep(1 * time.Second)
-	client.SendMessage(message.Chat.ID,"Marcos Maceo, [13.07.19 15:16]\nMediante este bot se pueden realizar recargas....Unicamente si te encuentras entre los usuarios que pueden.....El proceder es el siguiente:\n	Para recargar:\n`/recharge #1, #2, #3`\nDonde son lo siguiente:\n#1 -> Numero a recargar\n#2 -> Cantidad de recargas a dicho numero\n#3 -> Cantidad de dinero a transferir\n\nAdemas pueden ser multiples:\n`/recharge #1, #2, #3\n#4, #5, #6\n#7, #8, #9\n#10, #11, #12`\n...\nDonde #4, #7 y #10 son los numeros a recargar, #5, #8 y #11 son la cantidad de recargas a dichos numeros y #6, #9 y #12 son las cantidades con las que se recargaran\n\nSi se quiere ver el resumen de recargas que ha realizado, solo poner el siguiente comando\n`/resume`\n\nPara cualquier duda escribir a @marcosmaceo. Gracias")
+	client.SendMessage(message.Chat.ID, fmt.Sprintf("%s %s(%s)\nMediante este bot se pueden realizar recargas....Unicamente si te encuentras entre los usuarios que pueden.....El proceder es el siguiente:\n	Para recargar:\n```\n/recharge #1, #2, #3\n```\n\nDonde son lo siguiente:\n#1 -> Numero a recargar\n#2 -> Cantidad de recargas a dicho numero\n#3 -> Cantidad de dinero a transferir\n\nAdemas pueden ser multiples:\n```\n/recharge #1, #2, #3\n#4, #5, #6\n#7, #8, #9\n#10, #11, #12\n```\n...\nDonde #4, #7 y #10 son los numeros a recargar, #5, #8 y #11 son la cantidad de recargas a dichos numeros y #6, #9 y #12 son las cantidades con las que se recargaran\n\nSi se quiere ver el resumen de recargas que ha realizado, solo poner el siguiente comando\n`/resume`\n\nPara cualquier duda escribir a @marcosmaceo. Gracias", message.Chat.FirstName, message.Chat.LastName, message.Chat.Username))
+	log.Printf("Finish start for https://t.me/%s", message.Chat.Username)
 }
 
 func stat(h tbot.UpdateHandler) tbot.UpdateHandler {
@@ -130,18 +130,18 @@ func EchoHandler(message *tbot.Message) {
 func ResumeHandler(message *tbot.Message) {
 	err := dbIntegration.Ping(dbRedis)
 	if err != nil {
-		client.SendMessage(message.Chat.ID,"Hubo error con la conexion a la base de datos" + message.From.Username)
+		client.SendMessage(message.Chat.ID, "Hubo error con la conexion a la base de datos"+message.From.Username)
 		return
 	}
 	resume, err := dbIntegration.GetResume(dbRedis, message.From.Username)
 	if err != nil {
-		client.SendMessage(message.Chat.ID,"Hubo error obteniendo el resumen del usuario" + message.From.Username)
+		client.SendMessage(message.Chat.ID, "Hubo error obteniendo el resumen del usuario"+message.From.Username)
 		return
 	}
 
-	client.SendMessage(message.Chat.ID,resume)
+	client.SendMessage(message.Chat.ID, resume)
 }
 
-func AddRechargerHandler(message *tbot.Message)  {
+func AddRechargerHandler(message *tbot.Message) {
 
 }
