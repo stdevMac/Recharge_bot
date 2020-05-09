@@ -14,7 +14,6 @@ var dbRedis redis.Conn
 var bot *tbot.Server
 var client *tbot.Client
 var whitelist []string
-var superWhitelist []string
 
 func init() {
 
@@ -24,7 +23,6 @@ func init() {
 	client = bot.Client()
 
 	whitelist = []string{"marcosmaceo"}
-	superWhitelist = []string{"marcosmaceo"}
 }
 
 func main() {
@@ -87,16 +85,17 @@ func RechargeHandler(message *tbot.Message) {
 
 	bodyMessage := parser.PrettyPrint(response)
 
-	sendTo := []string{parser.GetFileFirstLine("send_to.txt")}
+	sendTo := parser.GetFileFirstLine("send_to.txt")
 
-	bodyToSend := sender.WritePlainEmail(sendTo, message.From.Username, bodyMessage)
-	sender.SendMail(sendTo, message.From.Username, bodyToSend)
+	sender.SendMail(bodyMessage, sendTo)
 
-	client.SendMessage(message.Chat.ID, fmt.Sprintf("El usuario \"%s\" realizo el siguiente pedido: \n %s", message.Chat.Username, message.Text))
+	_, err = client.SendMessage(message.Chat.ID, fmt.Sprintf("El usuario \"%s\" realizo el siguiente pedido: \n %s", message.Chat.Username, message.Text))
+	if err != nil {
 
-	client.SendMessage(message.Chat.ID, "Su recarga esta siendo procesada...")
-	client.SendMessage(message.Chat.ID, fmt.Sprintf("Subject: \n=> %s  Body: \n=> %s ", message.From.Username, bodyMessage))
-	client.SendMessage("677517973", "")
+	}
+	_, err = client.SendMessage(message.Chat.ID, "Su recarga esta siendo procesada...")
+	_, err = client.SendMessage(message.Chat.ID, fmt.Sprintf("Subject: \n=> %s  Body: \n=> %s ", message.From.Username, bodyMessage))
+	_, err = client.SendMessage("677517973", "")
 }
 
 func StartHandler(message *tbot.Message) {
@@ -117,7 +116,10 @@ func stat(h tbot.UpdateHandler) tbot.UpdateHandler {
 				return
 			}
 		}
-		dbIntegration.SetAttacker(dbRedis, u.Message.From.Username)
+		err := dbIntegration.SetAttacker(dbRedis, u.Message.From.Username)
+		if err != nil {
+			log.Print("Couldn't set attacker")
+		}
 		log.Printf("Handle time: %v", time.Now().Sub(start))
 		log.Printf("User not allowed at %v", time.Now().Sub(start))
 	}
@@ -130,12 +132,12 @@ func EchoHandler(message *tbot.Message) {
 func ResumeHandler(message *tbot.Message) {
 	err := dbIntegration.Ping(dbRedis)
 	if err != nil {
-		client.SendMessage(message.Chat.ID, "Hubo error con la conexion a la base de datos"+message.From.Username)
+		client.SendMessage(message.Chat.ID, "Se produjo un error con la conexion a la base de datos"+message.From.Username)
 		return
 	}
 	resume, err := dbIntegration.GetResume(dbRedis, message.From.Username)
 	if err != nil {
-		client.SendMessage(message.Chat.ID, "Hubo error obteniendo el resumen del usuario"+message.From.Username)
+		client.SendMessage(message.Chat.ID, "Se produjo un error obteniendo el resumen del usuario"+message.From.Username)
 		return
 	}
 
