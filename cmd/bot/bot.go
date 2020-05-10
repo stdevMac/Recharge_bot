@@ -66,6 +66,7 @@ func RechargeHandler(message *tbot.Message) {
 	err := dbIntegration.Ping(dbRedis)
 	if err != nil {
 		client.SendMessage(message.Chat.ID, "Hubo error con la conexion a la base de datos"+message.From.Username)
+		log.Printf("Couldn't access to database: %s", err)
 		return
 	}
 	fmt.Println(message.Chat.ID)
@@ -73,12 +74,15 @@ func RechargeHandler(message *tbot.Message) {
 
 	response, err := parser.GetBodyMessage(message)
 	if err != nil {
-		log.Print(err)
+		client.SendMessage(message.Chat.ID, "Hubo error con interpretando el mensaje, revise que cumple con los parametros...")
+		log.Printf("Couldn't get body message: %s", err)
 		return
 	}
 
 	err = dbIntegration.SetRechargeInfo(dbRedis, message.From.Username, response)
 	if err != nil {
+		client.SendMessage(message.Chat.ID, "Hubo error actualizando sus datos...contacte a @marcosmaceo")
+		log.Printf("Couldn't update user info: %s", err)
 		log.Print(err)
 		return
 	}
@@ -87,15 +91,16 @@ func RechargeHandler(message *tbot.Message) {
 
 	sendTo := parser.GetFileFirstLine("send_to.txt")
 
-	sender.SendMail(bodyMessage, sendTo)
-
-	// TODO Set Id of my chat (https://t.me/marcosmaceo)
-	_, err = client.SendMessage(message.Chat.ID, fmt.Sprintf("El usuario \"%s\" realizo el siguiente pedido: \n %s", message.Chat.Username, message.Text))
+	err = sender.SendMail(bodyMessage, sendTo)
 	if err != nil {
-
+		_, err = client.SendMessage(message.Chat.ID, "Su recarga no se pudo procesar...contacta a @marcosmaceo")
+		log.Printf("Couldn't send email for recharge, send error: %s", err)
+		return
 	}
-	_, err = client.SendMessage(message.Chat.ID, "Su recarga esta siendo procesada...")
-	_, err = client.SendMessage("677517973", "")
+
+	client.SendMessage("677517973", fmt.Sprintf("El usuario \"@%s\" realizo el siguiente pedido: \n %s", message.Chat.Username, message.Text))
+	client.SendMessage(message.Chat.ID, "Su recarga esta siendo procesada...")
+	log.Printf("Recharge from https://t.me/%s is processing....")
 }
 
 func StartHandler(message *tbot.Message) {
@@ -133,15 +138,26 @@ func ResumeHandler(message *tbot.Message) {
 	err := dbIntegration.Ping(dbRedis)
 	if err != nil {
 		client.SendMessage(message.Chat.ID, "Se produjo un error con la conexion a la base de datos"+message.From.Username)
+		log.Printf("Couldn't access to database: %s", err)
 		return
 	}
-	resume, err := dbIntegration.GetResume(dbRedis, message.From.Username)
+	var username string
+	if len(message.Text) > len("/resume") {
+		runes := []rune(message.Text)
+		username = string(runes[len("/resume"):len(message.Text)])
+	} else {
+		username = message.Chat.Username
+	}
+
+	resume, err := dbIntegration.GetResume(dbRedis, username)
 	if err != nil {
-		client.SendMessage(message.Chat.ID, "Se produjo un error obteniendo el resumen del usuario"+message.From.Username)
+		client.SendMessage(message.Chat.ID, "Se produjo un error obteniendo el resumen del usuario "+message.From.Username)
+		log.Printf("Couldn't get resumen for %s", message.Chat.Username)
 		return
 	}
 
 	client.SendMessage(message.Chat.ID, resume)
+	log.Printf("Resumen requested for %s", message.Chat.Username)
 }
 
 func AddRechargerHandler(message *tbot.Message) {
