@@ -17,7 +17,7 @@ type Sender struct {
 	Password string
 }
 
-func (sender *Sender) SendMail(body , to string)  {
+func (sender *Sender) SendMail(body , to string) error {
 
 	msg := "From: " + sender.User + "\n" +
 		"To: " + to + "\n" +
@@ -30,6 +30,7 @@ func (sender *Sender) SendMail(body , to string)  {
 
 	if err != nil {
 		log.Printf("smtp error: %s", err)
-		return
+		return err
 	}
+	return nil
 }
