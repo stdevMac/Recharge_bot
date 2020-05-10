@@ -89,12 +89,12 @@ func RechargeHandler(message *tbot.Message) {
 
 	sender.SendMail(bodyMessage, sendTo)
 
+	// TODO Set Id of my chat (https://t.me/marcosmaceo)
 	_, err = client.SendMessage(message.Chat.ID, fmt.Sprintf("El usuario \"%s\" realizo el siguiente pedido: \n %s", message.Chat.Username, message.Text))
 	if err != nil {
 
 	}
 	_, err = client.SendMessage(message.Chat.ID, "Su recarga esta siendo procesada...")
-	_, err = client.SendMessage(message.Chat.ID, fmt.Sprintf("Subject: \n=> %s  Body: \n=> %s ", message.From.Username, bodyMessage))
 	_, err = client.SendMessage("677517973", "")
 }
 
